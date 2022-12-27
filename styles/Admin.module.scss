@@ -1,0 +1,25 @@
+@import url('https://fonts.googleapis.com/css2?family=Lato&family=Raleway&display=swap');
+
+// font-family: 'Lato', sans-serif;
+// font-family: 'Raleway', sans-serif;
+.container {
+  display: flex;
+  margin: 10px;
+}
+
+.table th {
+  font-family: 'Raleway', sans-serif;
+}
+.table td {
+  font-family: 'Lato', sans-serif;
+  button {
+    background: transparent;
+    border: none;
+    font-size: 1rem;
+    font-family: 'Lato', sans-serif;
+    &:hover {
+      color: blue;
+      cursor: pointer;
+    }
+  }
+}
