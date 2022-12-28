@@ -1,8 +1,8 @@
 import styles from '../styles/Admin.module.scss';
 import TableRow from '../components/TableRow.js';
 import { db } from '../firebaseConfig';
-import { addDoc, collection, getDocs } from 'firebase/firestore';
-import { useState } from 'react';
+import { addDoc, collection, getDocs, updateDoc } from 'firebase/firestore';
+import { useEffect, useState } from 'react';
 
 export default function Home() {
   const dbInstance = collection(db, 'users');
@@ -13,15 +13,41 @@ export default function Home() {
     lastName: '',
     dateCreated: {},
   });
-  const getData = () => {
-    getDocs(dbInstance).then((data) => {
-      setUsers(
-        data.docs.map((item) => {
-          return { ...item.data(), id: item.id };
-        })
-      );
+  const [isEdit, setIsEdit] = useState(false);
+
+  const [userFirstName, setUserFirstName] = useState('');
+  const [userLastName, setUserLastName] = useState('');
+
+  const setFirst = (user) => {
+    setUserFirstName(user.firstName);
+  };
+
+  const setLast = (user) => {
+    setUserLastName(user.lastName);
+  };
+  const getEditData = (user) => {
+    setIsEdit(true);
+    setFirst(user);
+    setLast(user);
+  };
+
+  const updateFirst = (event) => {
+    setUserFirstName(event.target.value);
+  };
+
+  const updateLast = (event) => {
+    setUserLastName(event.target.value);
+  };
+
+  const editUser = () => {
+    const collectionById = doc(db, 'users');
+
+    updateDoc(collectionByid, {
+      userFirstName: userFirstName,
+      userLastName: userLastName,
+    }).then(() => {
+      window.location.reload();
     });
-    console.log('users = ', users);
   };
 
   const addUser = (event) => {
@@ -38,6 +64,16 @@ export default function Home() {
     });
   };
 
+  useEffect(() => {
+    getDocs(dbInstance).then((data) => {
+      setUsers(
+        data.docs.map((item) => {
+          return { ...item.data(), id: item.id };
+        })
+      );
+    });
+  }, []);
+
   return (
     <div className={styles.container}>
       <main className={styles.main}>
@@ -47,21 +83,46 @@ export default function Home() {
             <col />
             <col />
           </colgroup>
-          <tr>
-            <th>LastName</th>
-            <th>FirstName</th>
-            <th>EnrollmentDate</th>
-          </tr>
-          {users.map((user) => {
-            return <TableRow user={user} />;
-          })}
+          <tbody>
+            {' '}
+            <tr>
+              <th>LastName</th>
+              <th>FirstName</th>
+              <th>EnrollmentDate</th>
+            </tr>
+            {users.map((user) => {
+              return (
+                <TableRow key={user.id} getEditData={getEditData} user={user} />
+              );
+            })}
+          </tbody>
         </table>
-        <button onClick={getData}>Get Data</button>
         <form action="" onSubmit={addUser}>
           <input type="text" name="firstName" placeholder="First name" />
           <input type="text" name="lastName" placeholder="Last name" />
           <button type="submit">Add User</button>
         </form>
+        {isEdit ? (
+          <form action="">
+            <input
+              type="text"
+              name="firstName"
+              value={userFirstName}
+              onChange={updateFirst}
+              placeholder="First name"
+            />
+            <input
+              type="text"
+              name="lastName"
+              onChange={typeLast}
+              value={updateLast}
+              placeholder="Last name"
+            />
+            <button type="submit">Update User</button>
+          </form>
+        ) : (
+          <></>
+        )}
       </main>
     </div>
   );

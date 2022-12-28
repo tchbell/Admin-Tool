@@ -1,6 +1,13 @@
-// import { format } from 'date-fns';
+import { useState } from 'react';
 export default function TaleRow(props) {
-  console.log(props);
+  const [isEdit, setIsEdit] = useState(false);
+  const editTrue = () => {
+    setIsEdit(!isEdit);
+  };
+
+  const editUser = () => {
+    props.getEditData(props.user);
+  };
   const options = {
     weekday: 'long',
     year: 'numeric',
@@ -17,8 +24,14 @@ export default function TaleRow(props) {
           {props.user.dateCreated.toDate().toLocaleDateString('en-us', options)}
         </td>
         <td>
-          <button>Edit</button> |<button>Details</button> |
-          <button>Delete</button>
+          {isEdit ? (
+            <div>
+              <button>Save</button> | <button>Cancel </button>
+            </div>
+          ) : (
+            <button onClick={editUser}>Edit</button>
+          )}
+          |<button>Details</button> |<button>Delete</button>
         </td>
       </tr>
     </>
