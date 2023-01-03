@@ -8,6 +8,10 @@ export default function TaleRow(props) {
   const editUser = () => {
     props.getEditData(props.user);
   };
+
+  const deleteUser = () => {
+    props.deleteUser(props.user);
+  };
   const options = {
     weekday: 'long',
     year: 'numeric',
@@ -31,7 +35,8 @@ export default function TaleRow(props) {
           ) : (
             <button onClick={editUser}>Edit</button>
           )}
-          |<button>Details</button> |<button>Delete</button>
+          |<button>Details</button> |
+          <button onClick={deleteUser}>Delete</button>
         </td>
       </tr>
     </>

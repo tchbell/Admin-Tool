@@ -1,7 +1,14 @@
 import styles from '../styles/Admin.module.scss';
 import TableRow from '../components/TableRow.js';
 import { db } from '../firebaseConfig';
-import { addDoc, collection, getDocs, updateDoc } from 'firebase/firestore';
+import {
+  addDoc,
+  collection,
+  getDocs,
+  updateDoc,
+  doc,
+  deleteDoc,
+} from 'firebase/firestore';
 import { useEffect, useState } from 'react';
 
 export default function Home() {
@@ -17,6 +24,7 @@ export default function Home() {
 
   const [userFirstName, setUserFirstName] = useState('');
   const [userLastName, setUserLastName] = useState('');
+  const [userId, setUserId] = useState('');
 
   const setFirst = (user) => {
     setUserFirstName(user.firstName);
@@ -25,10 +33,17 @@ export default function Home() {
   const setLast = (user) => {
     setUserLastName(user.lastName);
   };
+  const setId = (user) => {
+    {
+      setUserId(user.id);
+    }
+  };
+
   const getEditData = (user) => {
     setIsEdit(true);
     setFirst(user);
     setLast(user);
+    setId(user);
   };
 
   const updateFirst = (event) => {
@@ -39,12 +54,13 @@ export default function Home() {
     setUserLastName(event.target.value);
   };
 
-  const editUser = () => {
-    const collectionById = doc(db, 'users');
+  const editUser = (event) => {
+    event.preventDefault();
+    const docRef = doc(db, 'users', userId);
 
-    updateDoc(collectionByid, {
-      userFirstName: userFirstName,
-      userLastName: userLastName,
+    updateDoc(docRef, {
+      firstName: userFirstName,
+      lastName: userLastName,
     }).then(() => {
       window.location.reload();
     });
@@ -61,6 +77,14 @@ export default function Home() {
       firstName: event.target.firstName.value,
       lastName: event.target.lastName.value,
       dateCreated: new Date(),
+    });
+  };
+
+  const deleteUser = (user) => {
+    console.log(user);
+    const docRef = doc(db, 'users', user.id);
+    deleteDoc(docRef).then(() => {
+      window.location.reload();
     });
   };
 
@@ -92,7 +116,12 @@ export default function Home() {
             </tr>
             {users.map((user) => {
               return (
-                <TableRow key={user.id} getEditData={getEditData} user={user} />
+                <TableRow
+                  key={user.id}
+                  getEditData={getEditData}
+                  deleteUser={deleteUser}
+                  user={user}
+                />
               );
             })}
           </tbody>
@@ -103,7 +132,7 @@ export default function Home() {
           <button type="submit">Add User</button>
         </form>
         {isEdit ? (
-          <form action="">
+          <form onSubmit={editUser} action="">
             <input
               type="text"
               name="firstName"
@@ -114,8 +143,8 @@ export default function Home() {
             <input
               type="text"
               name="lastName"
-              onChange={typeLast}
-              value={updateLast}
+              onChange={updateLast}
+              value={userLastName}
               placeholder="Last name"
             />
             <button type="submit">Update User</button>
